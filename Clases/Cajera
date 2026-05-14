@@ -1,0 +1,36 @@
+public class Cajera extends Thread {
+    private String nombre;
+    private Cliente cliente;
+    private long startTime;
+
+    public Cajera(String nombre, Cliente cliente, long startTime) {
+        this.nombre = nombre;
+        this.cliente = cliente;
+        this.startTime = startTime;
+    }
+
+    @Override
+    public void run() {
+        System.out.println("📌 " + nombre + " comienza a atender a " + cliente.getNombre() + " en el tiempo " + (System.currentTimeMillis() - startTime) / 1000 + "s");
+
+        double totalCompra = 0;
+        int tiempoAcumulado = 0;
+
+        for (Producto producto : cliente.getProductos()) {
+            System.out.println("  → " + nombre + " procesa " + producto.getNombre() + " - Precio: $" + producto.getPrecio());
+            totalCompra += producto.getPrecio();
+
+            try {
+                Thread.sleep(producto.getTiempoProcesamientoSegundos() * 1000L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            tiempoAcumulado += producto.getTiempoProcesamientoSegundos();
+            System.out.println("    ✔ " + producto.getNombre() + " procesado en " + producto.getTiempoProcesamientoSegundos() + "s (acumulado: " + tiempoAcumulado + "s)");
+        }
+
+        long tiempoFinal = (System.currentTimeMillis() - startTime) / 1000;
+        System.out.println("✅ " + nombre + " terminó con " + cliente.getNombre() + " - Total: $" + totalCompra + " - Tiempo total: " + tiempoAcumulado + "s (reloj: " + tiempoFinal + "s)");
+    }
+}
